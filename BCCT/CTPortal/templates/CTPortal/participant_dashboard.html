@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}Participant Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="row align-items-center my-4">
+        <div class="col">
+          <h2 class="h3 mb-0 page-title">Welcome, {{ request.user.username }}</h2>
+          <p class="text-muted">Trial Participant Dashboard</p>
+        </div>
+      </div>
+      
+      <!-- Consent Status Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card shadow">
+            <div class="card-header">
+              <strong class="card-title">Your Consent Status</strong>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="card mb-3 bg-primary-lighter">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-3 text-center">
+                          <span class="circle circle-sm bg-primary">
+                            <i class="fe fe-file-text fe-16 text-white"></i>
+                          </span>
+                        </div>
+                        <div class="col">
+                          <p class="small text-muted mb-0">Available Protocols</p>
+                          <span class="h3 mb-0">{{ available_protocols_count }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card mb-3 bg-success-lighter">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-3 text-center">
+                          <span class="circle circle-sm bg-success">
+                            <i class="fe fe-check-circle fe-16 text-white"></i>
+                          </span>
+                        </div>
+                        <div class="col">
+                          <p class="small text-muted mb-0">Consented Protocols</p>
+                          <span class="h3 mb-0">{{ consented_protocols_count }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card mb-3 bg-info-lighter">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-3 text-center">
+                          <span class="circle circle-sm bg-info">
+                            <i class="fe fe-activity fe-16 text-white"></i>
+                          </span>
+                        </div>
+                        <div class="col">
+                          <p class="small text-muted mb-0">Active Trials</p>
+                          <span class="h3 mb-0">{{ active_trials_count }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Consented Protocols Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card shadow">
+            <div class="card-header">
+              <strong class="card-title">Your Consented Protocols</strong>
+            </div>
+            <div class="card-body">
+              {% if consented_protocols %}
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Protocol Title</th>
+                        <th>Version</th>
+                        <th>Consent Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for consent in consented_protocols %}
+                        <tr>
+                          <td>{{ consent.protocol.title }}</td>
+                          <td>{{ consent.protocol.version }}</td>
+                          <td>{{ consent.created_at|date:"M d, Y" }}</td>
+                          <td><span class="badge badge-success">Active</span></td>
+                          <td>
+                            <a href="{% url 'protocol_detail' protocol_id=consent.protocol.id %}" class="btn btn-sm btn-primary">View Protocol</a>
+                            <a href="{% url 'consent_revoke' consent_id=consent.id %}" class="btn btn-sm btn-outline-danger">Revoke Consent</a>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="text-center">You haven't consented to any protocols yet.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Available Protocols Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card shadow">
+            <div class="card-header">
+              <strong class="card-title">Available Protocols</strong>
+            </div>
+            <div class="card-body">
+              {% if available_protocols %}
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Protocol Title</th>
+                        <th>Version</th>
+                        <th>Created By</th>
+                        <th>Created On</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for protocol in available_protocols %}
+                        <tr>
+                          <td>{{ protocol.title }}</td>
+                          <td>{{ protocol.version }}</td>
+                          <td>{{ protocol.created_by.username }}</td>
+                          <td>{{ protocol.created_at|date:"M d, Y" }}</td>
+                          <td>
+                            <a href="{% url 'protocol_detail' protocol_id=protocol.id %}" class="btn btn-sm btn-primary">View Details</a>
+                            <a href="{% url 'consent_create' protocol_id=protocol.id %}" class="btn btn-sm btn-success">Provide Consent</a>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="text-center">No available protocols at this time.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Your Data Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card shadow">
+            <div class="card-header">
+              <strong class="card-title">Your Trial Data</strong>
+            </div>
+            <div class="card-body">
+              <p>This section will display your trial data once you've enrolled in active trials.</p>
+              
+              {% if participant_data %}
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Trial</th>
+                        <th>Data Type</th>
+                        <th>Recorded On</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for data in participant_data %}
+                        <tr>
+                          <td>{{ data.trial_name }}</td>
+                          <td>{{ data.data_type }}</td>
+                          <td>{{ data.recorded_at|date:"M d, Y" }}</td>
+                          <td><span class="badge badge-success">Verified</span></td>
+                          <td>
+                            <a href="#" class="btn btn-sm btn-primary">View Details</a>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="text-center">No trial data available yet.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

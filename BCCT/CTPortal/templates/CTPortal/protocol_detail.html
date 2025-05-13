@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Protocol Detail{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-10">
+      <div class="row align-items-center mb-4">
+        <div class="col">
+          <h2 class="h3 mb-0 page-title">Protocol Details</h2>
+        </div>
+        <div class="col-auto">
+          <a href="{% url 'protocol_list' %}" class="btn btn-sm btn-outline-primary">Back to Protocols</a>
+          {% if request.user.stakeholder_profile.stakeholder_type == 'CONDUCTOR' and protocol.created_by == request.user %}
+            <a href="{% url 'protocol_update' protocol_id=protocol.id %}" class="btn btn-sm btn-warning">Update Protocol</a>
+          {% endif %}
+          {% if request.user.stakeholder_profile.stakeholder_type == 'PARTICIPANT' %}
+            {% if user_consent %}
+              <a href="{% url 'consent_revoke' consent_id=user_consent.id %}" class="btn btn-sm btn-danger">Revoke Consent</a>
+            {% else %}
+              <a href="{% url 'consent_create' protocol_id=protocol.id %}" class="btn btn-sm btn-success">Provide Consent</a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Protocol Information Card -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <strong class="card-title">{{ protocol.title }}</strong>
+          <span class="badge badge-primary ml-2">Version {{ protocol.version }}</span>
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <p class="small text-muted mb-1">Protocol ID</p>
+              <p class="mb-0">{{ protocol.id }}</p>
+            </div>
+            <div class="col-md-3">
+              <p class="small text-muted mb-1">Created By</p>
+              <p class="mb-0">{{ protocol.created_by.username }}</p>
+            </div>
+            <div class="col-md-3">
+              <p class="small text-muted mb-1">Created On</p>
+              <p class="mb-0">{{ protocol.created_at|date:"M d, Y" }}</p>
+            </div>
+            <div class="col-md-3">
+              <p class="small text-muted mb-1">Last Updated</p>
+              <p class="mb-0">{{ protocol.updated_at|date:"M d, Y" }}</p>
+            </div>
+          </div>
+          
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <p class="small text-muted mb-1">Description</p>
+              <p class="mb-0">{{ protocol.description|linebreaks }}</p>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-12">
+              <p class="small text-muted mb-1">Blockchain Hash</p>
+              <p class="mb-0 text-monospace">{{ protocol.hash }}</p>
+            </div>
+          </div>
+          
+          {% if protocol.previous_version_hash %}
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <p class="small text-muted mb-1">Previous Version Hash</p>
+              <p class="mb-0 text-monospace">{{ protocol.previous_version_hash }}</p>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Consent Status Card (for Participants) -->
+      {% if request.user.stakeholder_profile.stakeholder_type == 'PARTICIPANT' %}
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <strong class="card-title">Your Consent Status</strong>
+        </div>
+        <div class="card-body">
+          {% if user_consent %}
+            <div class="alert alert-success">
+              <h5 class="alert-heading">Consent Provided</h5>
+              <p>You provided consent to this protocol on {{ user_consent.created_at|date:"M d, Y" }}.</p>
+              <hr>
+              <p class="mb-0">You can revoke your consent at any time by clicking the "Revoke Consent" button.</p>
+            </div>
+          {% else %}
+            <div class="alert alert-warning">
+              <h5 class="alert-heading">Consent Not Provided</h5>
+              <p>You have not provided consent to this protocol yet.</p>
+              <hr>
+              <p class="mb-0">Please review the protocol details carefully before providing consent.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      
+      <!-- Consent List Card (for Conductors and Oversight) -->
+      {% if request.user.stakeholder_profile.stakeholder_type != 'PARTICIPANT' %}
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <strong class="card-title">Participant Consents</strong>
+        </div>
+        <div class="card-body">
+          {% if consents %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Participant</th>
+                    <th>Consent Date</th>
+                    <th>Status</th>
+                    <th>Blockchain Hash</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for consent in consents %}
+                    <tr>
+                      <td>{{ consent.participant.username }}</td>
+                      <td>{{ consent.created_at|date:"M d, Y" }}</td>
+                      <td>
+                        {% if consent.is_active %}
+                          <span class="badge badge-success">Active</span>
+                        {% else %}
+                          <span class="badge badge-danger">Revoked</span>
+                        {% endif %}
+                      </td>
+                      <td><span class="text-monospace">{{ consent.hash|truncatechars:20 }}</span></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-center">No consents have been provided for this protocol yet.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      
+      <!-- Version History Card -->
+      {% if previous_versions %}
+      <div class="card shadow">
+        <div class="card-header">
+          <strong class="card-title">Version History</strong>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Version</th>
+                  <th>Updated On</th>
+                  <th>Hash</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for version in previous_versions %}
+                  <tr>
+                    <td>{{ version.version }}</td>
+                    <td>{{ version.updated_at|date:"M d, Y" }}</td>
+                    <td><span class="text-monospace">{{ version.hash|truncatechars:20 }}</span></td>
+                    <td>
+                      <a href="{% url 'protocol_detail' protocol_id=version.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

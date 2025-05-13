@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Protocols{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="row align-items-center my-4">
+        <div class="col">
+          <h2 class="h3 mb-0 page-title">Protocols</h2>
+          <p class="text-muted">
+            {% if request.user.stakeholder_profile.stakeholder_type == 'CONDUCTOR' %}
+              Manage your clinical trial protocols
+            {% elif request.user.stakeholder_profile.stakeholder_type == 'OVERSIGHT' %}
+              Review all clinical trial protocols
+            {% elif request.user.stakeholder_profile.stakeholder_type == 'PARTICIPANT' %}
+              Available clinical trial protocols
+            {% endif %}
+          </p>
+        </div>
+        {% if request.user.stakeholder_profile.stakeholder_type == 'CONDUCTOR' %}
+        <div class="col-auto">
+          <a href="{% url 'protocol_create' %}" class="btn btn-primary">Create New Protocol</a>
+        </div>
+        {% endif %}
+      </div>
+      
+      <!-- Protocols List Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card shadow">
+            <div class="card-header">
+              <strong class="card-title">
+                {% if request.user.stakeholder_profile.stakeholder_type == 'CONDUCTOR' %}
+                  Your Protocols
+                {% elif request.user.stakeholder_profile.stakeholder_type == 'OVERSIGHT' %}
+                  All Protocols
+                {% elif request.user.stakeholder_profile.stakeholder_type == 'PARTICIPANT' %}
+                  Available Protocols
+                {% endif %}
+              </strong>
+            </div>
+            <div class="card-body">
+              {% if protocols %}
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Protocol ID</th>
+                        <th>Title</th>
+                        <th>Version</th>
+                        <th>Created By</th>
+                        <th>Created On</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for protocol in protocols %}
+                        <tr>
+                          <td>{{ protocol.id }}</td>
+                          <td>{{ protocol.title }}</td>
+                          <td>{{ protocol.version }}</td>
+                          <td>{{ protocol.created_by.username }}</td>
+                          <td>{{ protocol.created_at|date:"M d, Y" }}</td>
+                          <td>
+                            <a href="{% url 'protocol_detail' protocol_id=protocol.id %}" class="btn btn-sm btn-primary">View</a>
+                            {% if request.user.stakeholder_profile.stakeholder_type == 'CONDUCTOR' and protocol.created_by == request.user %}
+                              <a href="{% url 'protocol_update' protocol_id=protocol.id %}" class="btn btn-sm btn-warning">Update</a>
+                            {% endif %}
+                            {% if request.user.stakeholder_profile.stakeholder_type == 'PARTICIPANT' %}
+                              {% if protocol.has_consent %}
+                                <span class="badge badge-success">Consented</span>
+                              {% else %}
+                                <a href="{% url 'consent_create' protocol_id=protocol.id %}" class="btn btn-sm btn-success">Provide Consent</a>
+                              {% endif %}
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="text-center">
+                  {% if request.user.stakeholder_profile.stakeholder_type == 'CONDUCTOR' %}
+                    No protocols created yet. <a href="{% url 'protocol_create' %}">Create your first protocol</a>.
+                  {% elif request.user.stakeholder_profile.stakeholder_type == 'OVERSIGHT' %}
+                    No protocols available for review yet.
+                  {% elif request.user.stakeholder_profile.stakeholder_type == 'PARTICIPANT' %}
+                    No protocols available for participation yet.
+                  {% endif %}
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

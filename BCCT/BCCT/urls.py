@@ -17,7 +17,8 @@ from django.contrib import admin
 from django.urls import path,include
 
 urlpatterns = [
-    path('CTPortal/', include('CTPortal.urls')),
+    # Include CTPortal URLs at root level
+    path('', include('CTPortal.urls')),
     
     path('admin/', admin.site.urls),
 ]

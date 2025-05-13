@@ -662,6 +662,79 @@ def verify_chain_view(request):
         log_audit_event("CHAIN_VERIFICATION_FAILED", "Chain verification FAILED.", f"Triggered by: 'Verify Chain Integrity' button")
     return redirect('index')
 
+def blockchain_view(request):
+    # Get raw blockchain data (blocks as files)
+    block_files = sorted(glob.glob('blocks/*.txt'), key=os.path.getmtime)
+    chain_is_valid = verify_blockchain()
+    
+    # Get protocol count
+    from .models import Protocol
+    protocol_count = Protocol.objects.count()
+    
+    # Process blocks directly to extract more detailed information
+    blockchain_list = []
+    last_update = None
+    
+    for block_file in block_files:
+        try:
+            # Load the block object
+            block = load_block_from_file(block_file)
+            
+            # Try to decrypt the data
+            try:
+                decrypted_data = decrypt_data(block.data)
+                if isinstance(decrypted_data, dict):
+                    # Format data for display
+                    data_preview = ", ".join([f"{k}: {v}" for k, v in decrypted_data.items() if k in ['ParticipantEnrollmentNumber', 'Group', 'Vaccine']])
+                    if not data_preview:
+                        data_preview = "Genesis Block" if block.index == 0 else "Protocol Data"
+                    
+                    # Determine data type
+                    if block.index == 0:
+                        data_type = "Genesis"
+                    elif 'ParticipantEnrollmentNumber' in decrypted_data and decrypted_data['ParticipantEnrollmentNumber']:
+                        data_type = "Participant"
+                    elif 'Consent' in decrypted_data and decrypted_data['Consent']:
+                        data_type = "Consent"
+                    else:
+                        data_type = "Protocol"
+                else:
+                    data_preview = "[Encrypted Data]"
+                    data_type = "Unknown"
+            except Exception as e:
+                data_preview = f"[Decryption Error: {str(e)[:30]}...]"
+                data_type = "Encrypted"
+                decrypted_data = {}
+            
+            # Create a dictionary with block data
+            block_dict = {
+                'index': block.index,
+                'hash': block.hash,
+                'previous_hash': block.previous_hash,
+                'timestamp': block.timestamp,
+                'data_preview': data_preview,
+                'data_type': data_type,
+                'valid': True,  # Assume valid unless marked invalid
+                'raw_data': decrypted_data
+            }
+            
+            # Track the latest timestamp
+            if last_update is None or block.timestamp > last_update:
+                last_update = block.timestamp
+                
+            blockchain_list.append(block_dict)
+        except Exception as e:
+            print(f"Error processing block file {block_file}: {e}")
+    
+    context = {
+        'blockchain_data': blockchain_list,
+        'chain_is_valid': chain_is_valid,
+        'protocol_count': protocol_count,
+        'last_update': last_update
+    }
+    
+    return render(request, 'CTPortal/blockchain_view.html', context)
+
 def public_portal_view(request):
     # Fetch only aggregated data for the public view
     ChainDataFrame = get_blockchain_data() 
@@ -700,3 +773,20 @@ def audit_log_view(request):
         'page_title': "System Audit Log"
     }
     return render(request, 'CTPortal/audit_log.html', context)
+
+
+# Import authentication views from views_auth.py
+from .views_auth import (
+    register, 
+    custom_login,
+    custom_logout,
+    conductor_dashboard, 
+    oversight_dashboard, 
+    participant_dashboard,
+    protocol_list,
+    protocol_create,
+    protocol_detail,
+    protocol_update,
+    consent_create,
+    consent_revoke
+)
