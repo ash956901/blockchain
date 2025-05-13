@@ -1,4 +1,4 @@
-Based on the provided code, here's a README file for your Django application:
+
 
 ---
 
