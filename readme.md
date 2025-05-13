@@ -1,7 +1,4 @@
 
-
----
-
 # Django Blockchain Application
 
 This Django application simulates a blockchain system for keeping track of medical patient data securely.
@@ -55,6 +52,3 @@ python manage.py runserver
 
 Make sure to keep your encryption key (`key.csv`) secure and do not share or lose it, as it's essential for data encryption and decryption in the blockchain. The key is only associated with the data encryption. Even if you lose the key. the Chain will be still valid. but the data won't be readable. 
 
----
-
-This README provides an overview of your application and its functionalities.# blockchain
