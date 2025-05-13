@@ -74,6 +74,11 @@ def log_audit_event(event_type: str, description: str, related_info: str = "N/A"
 
 def index(request):
     print("DEBUG: Entered index function") # DEBUG PRINT
+    
+    # Redirect to login page if user is not authenticated
+    if not request.user.is_authenticated:
+        return redirect('login')
+        
     #Name of the Chain
     chain = 'test'
 

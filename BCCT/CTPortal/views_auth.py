@@ -3,7 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count
+import json
 from django.contrib.auth import login as auth_login, logout as auth_logout
+
+from .models import StakeholderProfile, Protocol, Consent
+from .views import get_last_block, create_new_block, save_block_to_file, log_audit_event
 from django.contrib.auth.forms import AuthenticationForm
 
 from .forms import UserRegistrationForm, ProtocolForm
@@ -212,7 +216,28 @@ def protocol_list(request):
     
     return render(request, 'CTPortal/protocol_list.html', context)
 
-@login_required
+# Function to record blockchain events for protocols and consents
+def record_blockchain_event(event_type, data_dict):
+    """Record protocol and consent events in the blockchain"""
+    try:
+        # Get the last block
+        last_block = get_last_block()
+        
+        # Create a new block with the event data
+        new_block = create_new_block(last_block, data_dict)
+        
+        # Save the block to the blockchain
+        save_block_to_file(new_block)
+        
+        # Log the event
+        log_audit_event(f"BLOCKCHAIN_{event_type}_RECORDED", f"{event_type} recorded in blockchain", f"Block #{new_block.index}")
+        
+        return True
+    except Exception as e:
+        print(f"Error recording blockchain event: {e}")
+        log_audit_event(f"BLOCKCHAIN_{event_type}_FAILED", f"Failed to record {event_type} in blockchain", f"Error: {str(e)}")
+        return False
+
 def protocol_create(request):
     # Only trial conductors can create protocols
     try:
@@ -228,6 +253,18 @@ def protocol_create(request):
         form = ProtocolForm(request.POST)
         if form.is_valid():
             protocol = form.save(user=request.user)
+            
+            # Record protocol creation in blockchain
+            protocol_data = {
+                'EventType': 'PROTOCOL_CREATED',
+                'ProtocolID': protocol.id,
+                'Title': protocol.title,
+                'Version': protocol.version,
+                'CreatedBy': protocol.created_by.username,
+                'CreatedAt': protocol.created_at.isoformat()
+            }
+            record_blockchain_event('PROTOCOL_CREATED', protocol_data)
+            
             log_audit_event("PROTOCOL_CREATED", f"Protocol created: {protocol.title}", f"By: {request.user.username}")
             messages.success(request, f'Protocol "{protocol.title}" created successfully.')
             return redirect('protocol_list')
@@ -351,8 +388,22 @@ def consent_create(request, protocol_id):
             # Reactivate consent
             existing_consent.is_active = True
             existing_consent.save()
+            
+            # Record consent reactivation in blockchain
+            consent_data = {
+                'EventType': 'CONSENT_REACTIVATED',
+                'ConsentID': existing_consent.id,
+                'ProtocolID': protocol.id,
+                'ProtocolTitle': protocol.title,
+                'ParticipantID': request.user.id,
+                'ParticipantUsername': request.user.username,
+                'Timestamp': existing_consent.consented_at.isoformat(),
+                'ConsentHash': existing_consent.consent_hash
+            }
+            record_blockchain_event('CONSENT_REACTIVATED', consent_data)
+            
             log_audit_event("CONSENT_REACTIVATED", f"Consent reactivated for protocol: {protocol.title}", f"By: {request.user.username}")
-            messages.success(request, f'You have successfully consented to participate in "{protocol.title}".')
+            messages.success(request, f'You have successfully consented to participate in "{protocol.title}".') 
     except Consent.DoesNotExist:
         # Create new consent
         import hashlib
@@ -366,6 +417,19 @@ def consent_create(request, protocol_id):
             is_active=True
         )
         consent.save()
+        
+        # Record consent creation in blockchain
+        blockchain_data = {
+            'EventType': 'CONSENT_CREATED',
+            'ConsentID': consent.id,
+            'ProtocolID': protocol.id,
+            'ProtocolTitle': protocol.title,
+            'ParticipantID': request.user.id,
+            'ParticipantUsername': request.user.username,
+            'Timestamp': consent.consented_at.isoformat(),
+            'ConsentHash': consent.consent_hash
+        }
+        record_blockchain_event('CONSENT_CREATED', blockchain_data)
         
         log_audit_event("CONSENT_CREATED", f"Consent provided for protocol: {protocol.title}", f"By: {request.user.username}")
         messages.success(request, f'You have successfully consented to participate in "{protocol.title}".')
@@ -390,9 +454,26 @@ def consent_revoke(request, consent_id):
         messages.error(request, "Consent not found or you don't have permission to revoke it.")
         return redirect('participant_dashboard')
     
+    if not consent.is_active:
+        messages.info(request, "This consent has already been revoked.")
+        return redirect('participant_dashboard')
+    
     # Revoke consent
     consent.is_active = False
     consent.save()
+    
+    # Record consent revocation in blockchain
+    revoke_data = {
+        'EventType': 'CONSENT_REVOKED',
+        'ConsentID': consent.id,
+        'ProtocolID': consent.protocol.id,
+        'ProtocolTitle': consent.protocol.title,
+        'ParticipantID': request.user.id,
+        'ParticipantUsername': request.user.username,
+        'RevokedAt': consent.updated_at.isoformat(),
+        'ConsentHash': consent.consent_hash
+    }
+    record_blockchain_event('CONSENT_REVOKED', revoke_data)
     
     log_audit_event("CONSENT_REVOKED", f"Consent revoked for protocol: {consent.protocol.title}", f"By: {request.user.username}")
     messages.success(request, f'You have successfully revoked your consent for "{consent.protocol.title}".')
