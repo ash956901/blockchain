@@ -55,261 +55,354 @@
         </nav>
       </aside>
       <main role="main" class="main-content">
+        {% if messages %}
+          <div class="container-fluid">
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
         <div class="container-fluid">
           <div class="row justify-content-center">
             <div class="col-12">
-              <h1 class="page-title"></h1>
-          <div class="row">
+              <h1 class="page-title">BlockTrials - A Multi-Stakeholder Ecosystem</h1>
+              <hr/>
 
-              
-
-              <div class="col-md-4 mb-4">
-
-                {% if CHAIN == 'Valid' %}
-
-                  <div class="card shadow bg-primary text-white mb-4">
-                    <div class="card-body">
-                      <div class="row align-items-center">
-                        <div class="col-3 text-center">
-                          <span class="circle circle-sm bg-primary-light">
-                            <i class="fe fe-16 fe-check-circle text-white mb-0"></i>
-                          </span>
-                        </div>
-                        <div class="col pr-0">
-                          <p class="small text-light mb-0">Chain Status</p>
-                          <span class="h3 mb-0 text-white">Valid</span>
-                          <span class="small text-muted">Verified</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- <button type="button" class="btn mb-2 btn-success">Add New Block</button> -->
+              <!-- Section 1: Trial Management Dashboard -->
+              <h2>Trial Management Dashboard</h2>
+              <div class="row">
+                <div class="col-md-12 mb-4">
                   <button type="button" class="btn mb-2 btn-outline-secondary" data-toggle="modal" data-target="#varyModal" data-whatever="@mdo">Add New Block</button>
+                  <a href="{% url 'initialize_blockchain' %}" class="btn mb-2 btn-warning" onclick="return confirm('Are you sure you want to delete all existing blockchain data and create a new one? This cannot be undone.');">Initialize/Reset Blockchain</a>
+                </div>
+              </div>
 
-                  <div class="modal fade" id="varyModal" tabindex="-1" role="dialog" aria-labelledby="varyModalLabel" aria-hidden="true" style="display: none;">
-                    <div class="modal-dialog" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="varyModalLabel">Add New Block</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                          </button>
-                        </div>
-                        <div class="modal-body">
-                          <form action="SaveBlock" method="POST">
-
-                            {%csrf_token%}
-                            <div class="form-group mb-3"><label for="ParticipantEnrollmentNumber">ParticipantEnrollmentNumber </label><input type="text" id="ParticipantEnrollmentNumber" name="ParticipantEnrollmentNumber" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="Group">Group </label><input type="text" id="Group" name="Group" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="DateofEnrollment">DateofEnrollment</label><input type="text" id="DateofEnrollment" name="DateofEnrollment" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="Age">Age </label><input type="text" id="Age" name="Age" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="Sex">Sex </label><input type="text" id="Sex" name="Sex" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="Education">Education </label><input type="text" id="Education" name="Education" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="Allergy">Allergy </label><input type="text" id="Allergy" name="Allergy" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="Vaccine">Vaccine </label><input type="text" id="Vaccine" name="Vaccine" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="CoMorbidity">CoMorbidity </label><input type="text" id="CoMorbidity" name="CoMorbidity" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="FollowUpDate">FollowUpDate</label><input type="text" id="FollowUpDate" name="FollowUpDate" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="NoOfAntiHistamines">NoOfAntiHistamines</label><input type="text" id="NoOfAntiHistamines" name="NoOfAntiHistamines" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="LongCovidFatigueFollowUp">LongCovidFatigueFollowUp</label><input type="text" id="LongCovidFatigueFollowUp" name="LongCovidFatigueFollowUp" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="LongCovidFatigueFollowUpEnrollment">LongCovidFatigueFollowUpEnrollment</label><input type="text" id="LongCovidFatigueFollowUpEnrollment" name="LongCovidFatigueFollowUpEnrollment" class="form-control"></div>
-                            <div class="form-group mb-3"><label for="Consent">Consent </label><input type="text" id="Consent" name="Consent" class="form-control"></div>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn mb-2 btn-secondary" data-dismiss="modal">Close</button>
-                          <button type="submit" class="btn mb-2 btn-primary">Save</button>
-                        </div>
-                      </form>
-                      </div>
-                    </div>
-                  </div>
-
-                  {% else %}
-
-                  <div class="card shadow bg-danger text-white mb-4">
+              <!-- Analytical Cards -->
+              <h5 class="card-title">Monitoring Entities - Analytical View</h5>
+              <div class="row">
+                <div class="col-md-6 col-xl-3 mb-4">
+                  <div class="card shadow">
                     <div class="card-body">
                       <div class="row align-items-center">
                         <div class="col-3 text-center">
-                          <span class="circle circle-sm bg-danger-light">
-                            <i class="fe fe-16 fe-alert-circle text-white mb-0"></i>
+                          <span class="circle circle-sm bg-primary">
+                            <i class="fe fe-16 fe-user text-white mb-0"></i>
                           </span>
                         </div>
                         <div class="col pr-0">
-                          <p class="small text-light mb-0">Chain Status</p>
-                          <span class="h3 mb-0 text-white">Invalid</span>
-                          <span class="small text-muted">Chain is compromized</span>
+                          <h5> Total Recruitments</h5>
+                          <span class="h3 mb-0">{{ParticipantsCount}}</span>
                         </div>
                       </div>
                     </div>
                   </div>
-
-                  {% endif %}
                 </div>
-                <div class="col-md-8 mb-4">
-
-                <div class="card shadow">
-                  <div class="card-header">
-                    <strong class="card-title">Block History</strong>
-                    <a class="float-right small text-muted" href="#!">View all</a>
+                <div class="col-md-6 col-xl-3 mb-4">
+                  <div class="card shadow">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-3 text-center">
+                          <span class="circle circle-sm bg-primary">
+                            <i class="fe fe-16 fe-user text-white mb-0"></i>
+                          </span>
+                        </div>
+                        <div class="col pr-0">
+                          <h5> Males</h5>
+                          <span class="h3 mb-0">{{MaleCount}}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="card-body">
-                    <div class="list-group list-group-flush my-n3">
-                      {% for m in NDF %}
-                          <div class="list-group-item">
+                </div>
+                <div class="col-md-6 col-xl-3 mb-4">
+                  <div class="card shadow">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-3 text-center">
+                          <span class="circle circle-sm bg-primary">
+                            <i class="fe fe-16 fe-user text-white mb-0"></i>
+                          </span>
+                        </div>
+                        <div class="col pr-0">
+                          <h5> Females</h5>
+                          <span class="h3 mb-0">{{FeMaleCount}}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-xl-3 mb-4">
+                  <div class="card shadow">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-3 text-center">
+                          <span class="circle circle-sm bg-primary">
+                            <i class="fe fe-16 fe-user text-white mb-0"></i>
+                          </span>
+                        </div>
+                        <div class="col pr-0">
+                          <h5> Others</h5>
+                          <span class="h3 mb-0">{{OthersCount}}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PI Data View Table -->
+              <div class="row">
+                <div class="col-md-12 mb-4">
+                  <div class="card shadow">
+                    <div class="card-body">
+                      <h5 class="card-title">PI - Data View</h5>
+                      <div class="form-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search table...">
+                      </div>
+                      <table class="table table-hover" id="piDataTable">
+                        <thead class="thead-dark">
+                          <tr>
+                            <th>ID</th>
+                            <th>Group</th>
+                            <th>Date of Enrollment</th>
+                            <th>Age</th>
+                            <th>Sex</th>
+                            <th>Education</th>
+                            <th>Allergy</th>
+                            <th>Vaccine</th>
+                            <th>Co Morbidity</th>
+                            <th>Follow Up Date </th>
+                            <th>No Of Anti Histamines </th>
+                            <th>Long Covid Fatigue FollowUp </th>
+                            <th>Long CovidFatigue FollowUp Enrollment </th>
+                            <th>Consent</th>
+                            <th>Ethics Approval ID</th>
+                            <th>Block Index</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for x in CDF %}
+                            <tr>
+                              <td>{{x.ParticipantEnrollmentNumber}}</td>
+                              <td>{{x.Group}}</td>
+                              <td>{{x.DateofEnrollment}}</td>
+                              <td>{{x.Age}}</td>
+                              <td>{{x.Sex}}</td>
+                              <td>{{x.Education}}</td>
+                              <td>{{x.Allergy}}</td>
+                              <td>{{x.Vaccine}}</td>
+                              <td>{{x.CoMorbidity}}</td>
+                              <td>{{x.FollowUpDate}}</td>
+                              <td>{{x.NoOfAntiHistamines}}</td>
+                              <td>{{x.LongCovidFatigueFollowUp}}</td>
+                              <td>{{x.LongCovidFatigueFollowUpEnrollment}}</td>
+                              <td>{{x.Consent}}</td>
+                              <td>{{x.EthicsApprovalID}}</td>
+                              <td>
+                                  <a href="{% url 'view_block_detail' block_idx=x.block_index %}">{{ x.block_index }}</a>
+                              </td>
+                              <td>
+                                <a href="{% url 'tamper_block' block_idx=x.block_index %}" class="btn btn-sm btn-danger">Tamper Block {{ x.block_index }}</a>
+                              </td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Block History (NDF) - This will be moved -->
+              <!--
+              <div class="row">
+                <div class="col-md-12 mb-4">
+                  <div class="card shadow">
+                    <div class="card-header">
+                      <strong class="card-title">Block History (System Log)</strong>
+                      <a class="float-right small text-muted" href="#!">View all</a>
+                    </div>
+                    <div class="card-body">
+                      <div class="list-group list-group-flush my-n3">
+                        {% for m in NDF %}
+                            <div class="list-group-item">
+                              <div class="row align-items-center">
+                                <div class="col-auto">
+                                  <span class="fe fe-box fe-24"></span>
+                                </div>
+                                <div class="col">
+                                  <small><strong>{{m.Mess}}</strong></small>
+                                  <div class="my-0 text-muted small">{{m.Hash}}</div>
+                                </div>
+                                <div class="col-auto">
+                                  <small class="badge badge-pill badge-light text-muted">{{m.Time}}</small>
+                                </div>
+                              </div>
+                            </div>
+                          {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              -->
+              <hr/>
+
+              <!-- Section 2: Simulated Regulatory Overview -->
+              <h2>Simulated Regulatory Overview</h2>
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                    <a href="{% url 'verify_chain' %}" class="btn mb-2 btn-info btn-lg">Verify Chain Integrity</a>
+                </div>
+                <div class="col-md-6 mb-4">
+                    {% if CHAIN == 'Valid' %}
+                      <div class="card shadow bg-primary text-white mb-4">
+                          <div class="card-body">
                             <div class="row align-items-center">
-                              <div class="col-auto">
-                                <span class="fe fe-box fe-24"></span>
+                              <div class="col-3 text-center">
+                                <span class="circle circle-sm bg-primary-light">
+                                  <i class="fe fe-16 fe-check-circle text-white mb-0"></i>
+                                </span>
                               </div>
-                              <div class="col">
-                                <small><strong>{{m.Mess}}</strong></small>
-                                <div class="my-0 text-muted small">{{m.Hash}}</div>
-                              </div>
-                              <div class="col-auto">
-                                <small class="badge badge-pill badge-light text-muted">{{m.Time}}</small>
+                              <div class="col pr-0">
+                                <p class="small text-light mb-0">Overall Chain Status</p>
+                                <span class="h3 mb-0 text-white">Valid</span>
+                                <span class="small text-muted">(Verified by System)</span>
                               </div>
                             </div>
                           </div>
-                        {% endfor %}
-                    </div> <!-- / .list-group -->
-                  </div> <!-- / .card-body -->
-                </div> <!-- / .card -->
+                      </div>
+                    {% elif CHAIN == "InValid" %}
+                      <div class="card shadow bg-danger text-white mb-4">
+                          <div class="card-body">
+                              <p class="small text-light mb-0">Overall Chain Status</p>
+                              <span class="h3 mb-0 text-white">CHAIN COMPROMISED</span>
+                              <span class="small text-muted">(Verification Failed)</span>
+                          </div>
+                      </div>
+                    {% else %}
+                      <div class="card shadow bg-warning text-dark mb-4">
+                          <div class="card-body">
+                              <p class="small text-dark mb-0">Overall Chain Status</p>
+                              <span class="h3 mb-0 text-dark">{{ CHAIN }}</span>
+                              <span class="small text-muted">(Status Unknown or Pending Verification)</span>
+                          </div>
+                      </div>
+                    {% endif %}
+                </div>
               </div>
-            </div>
-          </div>
-          </div>
+              <p><em>Regulatory bodies can query raw data directly from trial systems. Full traceability and immutability are ensured by the blockchain. Audit logs (like the Block History below) are available for inspection.</em></p>
+              
+              <!-- Moved Block History (NDF) here -->
+              <div class="row">
+                <div class="col-md-12 mb-4">
+                  <div class="card shadow">
+                    <div class="card-header">
+                      <strong class="card-title">Block History (System Log / Audit Trail)</strong>
+                      <a class="float-right small text-muted" href="#!">View all</a>
+                      <a href="{% url 'audit_log' %}" class="float-right small text-primary mr-2">View Full System Audit Log</a>
+                    </div>
+                    <div class="card-body">
+                      <div class="list-group list-group-flush my-n3">
+                        {% for m in NDF %}
+                            <div class="list-group-item">
+                              <div class="row align-items-center">
+                                <div class="col-auto">
+                                  <span class="fe fe-box fe-24"></span>
+                                </div>
+                                <div class="col">
+                                  <small><strong>{{m.Mess}}</strong></small>
+                                  <div class="my-0 text-muted small" style="word-wrap: break-word;">{{m.Hash}}</div>
+                                </div>
+                                <div class="col-auto">
+                                  <small class="badge badge-pill badge-light text-muted">{{m.Time}}</small>
+                                </div>
+                              </div>
+                            </div>
+                          {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <hr/>
 
-          <h5 class="card-title">Monitoring Entities - Analytical View</h5>
-          
-          <div class="row">
-            <div class="col-md-6 col-xl-3 mb-4">
-              <div class="card shadow">
-                <div class="card-body">
-                  <div class="row align-items-center">
-                    <div class="col-3 text-center">
-                      <span class="circle circle-sm bg-primary">
-                        <i class="fe fe-16 fe-user text-white mb-0"></i>
-                      </span>
+              <!-- Section 3: Public Trial Information -->
+              <h2>Public Trial Information</h2>
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h5>Total Participants Enrolled</h5>
+                            <span class="h3 mb-0">{{ParticipantsCount}}</span>
+                        </div>
                     </div>
-                    <div class="col pr-0">
-                      <h5> Total Recruitments</h5>
-                      <!-- <p class="small mb-0" style="">Total Body Weight</p> -->
-                      <span class="h3 mb-0">{{ParticipantsCount}}</span>
-                      <span class="small"></span>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-body">
+                          <h5>Study Integrity Status</h5>
+                            {% if CHAIN == 'Valid' %}
+                              <span class="h3 mb-0 text-success">Verified</span>
+                            {% elif CHAIN == "InValid" %}
+                              <span class="h3 mb-0 text-danger">Potentially Compromised</span>
+                            {% else %}
+                              <span class="h3 mb-0 text-warning">{{ CHAIN }}</span>
+                            {% endif %}
+                            <p class="small text-muted">Reflects data integrity of the trial records.</p>
+                        </div>
                     </div>
-                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-md-6 col-xl-3 mb-4">
-              <div class="card shadow">
-                <div class="card-body">
-                  <div class="row align-items-center">
-                    <div class="col-3 text-center">
-                      <span class="circle circle-sm bg-primary">
-                        <i class="fe fe-16 fe-user text-white mb-0"></i>
-                      </span>
-                    </div>
-                    <div class="col pr-0">
-                      <h5> Males</h5>
-                      <!-- <p class="small mb-0" style="">Total Body Weight</p> -->
-                      <span class="h3 mb-0">{{MaleCount}}</span>
-                      <span class="small"></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 col-xl-3 mb-4">
-              <div class="card shadow">
-                <div class="card-body">
-                  <div class="row align-items-center">
-                    <div class="col-3 text-center">
-                      <span class="circle circle-sm bg-primary">
-                        <i class="fe fe-16 fe-user text-white mb-0"></i>
-                      </span>
-                    </div>
-                    <div class="col pr-0">
-                      <h5> Females</h5>
-                      <!-- <p class="small mb-0" style="">Total Body Weight</p> -->
-                      <span class="h3 mb-0">{{FeMaleCount}}</span>
-                      <span class="small"></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 col-xl-3 mb-4">
-              <div class="card shadow">
-                <div class="card-body">
-                  <div class="row align-items-center">
-                    <div class="col-3 text-center">
-                      <span class="circle circle-sm bg-primary">
-                        <i class="fe fe-16 fe-user text-white mb-0"></i>
-                      </span>
-                    </div>
-                    <div class="col pr-0">
-                      <h5> Others</h5>
-                      <!-- <p class="small mb-0" style="">Total Body Weight</p> -->
-                      <span class="h3 mb-0">{{OthersCount}}</span>
-                      <span class="small"></span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <p><em>This portal provides transparent updates on trial progress. All actions such as approvals, consent, recruitment, and reporting are logged and auditable within the main system.</em></p>
+              <p><a href="{% url 'public_portal' %}" class="btn btn-link">View Full Public Portal Page</a></p>
+              <hr/>
 
-          </div>
-            <div class="row">
-              <div class="col-md-12 mb-4">
-                <div class="card shadow">
-                  <div class="card-body">
-                    <h5 class="card-title">PI - Data View</h5>
-                    <p class="card-text"> 
-                    </p>
-                    <table class="table table-hover">
-                      <thead class="thead-dark">
-                        <tr>
-                          <th>ID</th>
-                          <th>Group</th>
-                          <th>Date of Enrollment</th>
-                          <th>Age</th>
-                          <th>Sex</th>
-                          <th>Education</th>
-                          <th>Allergy</th>
-                          <th>Vaccine</th>
-                          <th>Co Morbidity</th>
-                          <th>Follow Up Date </th>
-                          <th>No Of Anti Histamines </th>
-                          <th>Long Covid Fatigue FollowUp </th>
-                          <th>Long CovidFatigue FollowUp Enrollment </th>
-                          <th>Consent</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for x in CDF %}
-                          <tr>
-                            <td>{{x.ParticipantEnrollmentNumber}}</td>
-                            <td>{{x.Group}}</td>
-                            <td>{{x.DateofEnrollment}}</td>
-                            <td>{{x.Age}}</td>
-                            <td>{{x.Sex}}</td>
-                            <td>{{x.Education}}</td>
-                            <td>{{x.Allergy}}</td>
-                            <td>{{x.Vaccine}}</td>
-                            <td>{{x.CoMorbidity}}</td>
-                            <td>{{x.FollowUpDate}}</td>
-                            <td>{{x.NoOfAntiHistamines}}</td>
-                            <td>{{x.LongCovidFatigueFollowUp}}</td>
-                            <td>{{x.LongCovidFatigueFollowUpEnrollment}}</td>
-                            <td>{{x.Consent}}</td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
+              <!-- Add New Block Modal - Placed here to ensure it's outside the flow of sections but available -->
+              <div class="modal fade" id="varyModal" tabindex="-1" role="dialog" aria-labelledby="varyModalLabel" aria-hidden="true" style="display: none;">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="varyModalLabel">Add New Block</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <form action="SaveBlock" method="POST" id="addBlockForm">
+                        {%csrf_token%}
+                        <div class="form-group mb-3"><label for="ParticipantEnrollmentNumber">ParticipantEnrollmentNumber </label><input type="text" id="ParticipantEnrollmentNumber" name="ParticipantEnrollmentNumber" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="Group">Group </label><input type="text" id="Group" name="Group" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="DateofEnrollment">DateofEnrollment</label><input type="text" id="DateofEnrollment" name="DateofEnrollment" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="Age">Age </label><input type="text" id="Age" name="Age" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="Sex">Sex </label><input type="text" id="Sex" name="Sex" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="Education">Education </label><input type="text" id="Education" name="Education" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="Allergy">Allergy </label><input type="text" id="Allergy" name="Allergy" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="Vaccine">Vaccine </label><input type="text" id="Vaccine" name="Vaccine" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="CoMorbidity">CoMorbidity </label><input type="text" id="CoMorbidity" name="CoMorbidity" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="FollowUpDate">FollowUpDate</label><input type="text" id="FollowUpDate" name="FollowUpDate" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="NoOfAntiHistamines">NoOfAntiHistamines</label><input type="text" id="NoOfAntiHistamines" name="NoOfAntiHistamines" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="LongCovidFatigueFollowUp">LongCovidFatigueFollowUp</label><input type="text" id="LongCovidFatigueFollowUp" name="LongCovidFatigueFollowUp" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="LongCovidFatigueFollowUpEnrollment">LongCovidFatigueFollowUpEnrollment</label><input type="text" id="LongCovidFatigueFollowUpEnrollment" name="LongCovidFatigueFollowUpEnrollment" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="Consent">Consent </label><input type="text" id="Consent" name="Consent" class="form-control"></div>
+                        <div class="form-group mb-3"><label for="EthicsApprovalID">Ethics Approval ID </label><input type="text" id="EthicsApprovalID" name="EthicsApprovalID" class="form-control" placeholder="e.g., ETHICS_APP_001"></div>
+                        
+                        <div class="modal-footer">
+                          <button type="button" class="btn mb-2 btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn mb-2 btn-primary">Save Block Data</button>
+                        </div>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+
             </div> <!-- .col-12 -->
           </div> <!-- .row -->
         </div> <!-- .container-fluid -->
@@ -317,6 +410,7 @@
        
       </main> <!-- main -->
     </div> <!-- .wrapper -->
+
     <script src="{% static 'CTPortal/js/jquery.min.js' %}"></script>
     <script src="{% static 'CTPortal/js/popper.min.js' %}"></script>
     <script src="{% static 'CTPortal/js/moment.min.js' %}"></script>
@@ -338,6 +432,69 @@
       }
       gtag('js', new Date());
       gtag('config', 'UA-56159088-1');
+    </script>
+
+    <!-- Custom script for table search -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const dataTable = document.getElementById('piDataTable');
+        const tableRows = dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        searchInput.addEventListener('keyup', function() {
+          const filter = searchInput.value.toUpperCase();
+
+          for (let i = 0; i < tableRows.length; i++) {
+            let rowVisible = false;
+            const cells = tableRows[i].getElementsByTagName('td');
+            for (let j = 0; j < cells.length; j++) {
+              const cell = cells[j];
+              if (cell) {
+                const cellText = cell.textContent || cell.innerText;
+                if (cellText.toUpperCase().indexOf(filter) > -1) {
+                  rowVisible = true;
+                  break; 
+                }
+              }
+            }
+            tableRows[i].style.display = rowVisible ? "" : "none";
+          }
+        });
+      });
+    </script>
+
+    <!-- Custom script for form validation -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const addBlockForm = document.getElementById('addBlockForm');
+        const participantEnrollmentNumberInput = document.getElementById('ParticipantEnrollmentNumber');
+        const ageInput = document.getElementById('Age');
+
+        addBlockForm.addEventListener('submit', function(event) {
+          let isValid = true;
+          // Validate ParticipantEnrollmentNumber
+          if (participantEnrollmentNumberInput.value.trim() === '') {
+            alert('Participant Enrollment Number is required.');
+            participantEnrollmentNumberInput.focus();
+            isValid = false;
+            event.preventDefault(); 
+            return;
+          }
+
+          // Validate Age
+          const ageValue = ageInput.value.trim();
+          if (ageValue === '' || isNaN(ageValue)) {
+            alert('Age must be a valid number.');
+            ageInput.focus();
+            isValid = false;
+            event.preventDefault();
+            return;
+          }
+          
+          // If you had more validations and one failed, event.preventDefault() would have been called.
+          // If all good, the form submits as default or you can explicitly call addBlockForm.submit() if needed after specific handling.
+        });
+      });
     </script>
   </body>
 </html>

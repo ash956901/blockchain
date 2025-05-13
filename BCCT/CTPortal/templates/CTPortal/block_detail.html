@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Block {{ block_idx }} Details - BlockTrials</title>
+    {% load static %}
+    <!-- Simple bar CSS -->
+    <link rel="stylesheet" href="{% static 'CTPortal/css/simplebar.css' %}">
+    <!-- Fonts CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <!-- Icons CSS -->
+    <link rel="stylesheet" href="{% static 'CTPortal/css/feather.css' %}">
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{% static 'CTPortal/css/app-light.css' %}" id="lightTheme">
+    <style>
+        body { padding: 20px; }
+        .text-monospace { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+        .text-capitalize { text-transform: capitalize; }
+        /* Add other critical styles if needed from your base or app.css */
+    </style>
+</head>
+<body class="light">
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <h2 class="page-title">Block Detail: #{{ block_idx }}</h2>
+
+            {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error_message }}
+                </div>
+                <a href="{% url 'index' %}" class="btn btn-primary">Back to Main Page</a>
+            {% elif block %}
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <strong class="card-title">Block #{{ block.index }} Properties</strong>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-3">Block Index:</dt>
+                            <dd class="col-sm-9">{{ block.index }}</dd>
+
+                            <dt class="col-sm-3">Timestamp:</dt>
+                            <dd class="col-sm-9">{{ block.timestamp }}</dd>
+
+                            <dt class="col-sm-3">Previous Block Hash:</dt>
+                            <dd class="col-sm-9 text-monospace" style="word-break: break-all;">{{ block.previous_hash }}</dd>
+
+                            <dt class="col-sm-3">Current Block Hash:</dt>
+                            <dd class="col-sm-9 text-monospace" style="word-break: break-all;">{{ block.hash }}</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Hash Verification Section -->
+                {% if block.recalculated_hash is not None %}
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <strong class="card-title">Data Integrity Verification (Simulated Regulatory Check)</strong>
+                    </div>
+                    <div class="card-body">
+                        <p>This section demonstrates how a regulator could verify if the decrypted data still matches the block's recorded hash on the blockchain.</p>
+                        <dl class="row">
+                            <dt class="col-sm-4">Stored Block Hash:</dt>
+                            <dd class="col-sm-8 text-monospace" style="word-break: break-all;">{{ block.hash }}</dd>
+
+                            <dt class="col-sm-4">Recalculated Hash (from current data):</dt>
+                            <dd class="col-sm-8 text-monospace" style="word-break: break-all;">{{ block.recalculated_hash }}</dd>
+
+                            <dt class="col-sm-4">Hashes Match:</dt>
+                            <dd class="col-sm-8">
+                                {% if block.hashes_match %}
+                                    <span class="badge badge-success">Yes - Data Integrity Verified</span>
+                                {% else %}
+                                    <span class="badge badge-danger">No - Data Mismatch! Potential Tampering or Error.</span>
+                                {% endif %}
+                            </dd>
+                        </dl>
+                        {% if not block.hashes_match %}
+                            <div class="alert alert-warning mt-3" role="alert">
+                                <strong>Warning:</strong> The recalculated hash does not match the stored hash. This indicates that if the currently decrypted data were re-secured, its hash would be different from what is stored on the blockchain. This could be due to post-decryption modification of the data before this check, or an issue with the original block integrity if this block was tampered with *before* decryption (e.g., the encrypted string was altered).
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <strong class="card-title">Decrypted Patient Data</strong>
+                    </div>
+                    <div class="card-body">
+                        {% if block.decryption_error %}
+                            <div class="alert alert-warning" role="alert">
+                                <strong>Decryption Failed:</strong> {{ block.decryption_error }}
+                            </div>
+                            <p><strong>Original Encrypted Data (partial):</strong></p>
+                            <pre class="text-monospace" style="word-break: break-all; white-space: pre-wrap;">{{ block.encrypted_data_str|slice:":200" }}{% if block.encrypted_data_str|length > 200 %}...{% endif %}</pre>
+                        {% elif block.patient_data %}
+                            <table class="table">
+                                <tbody>
+                                    {% for key, value in block.patient_data.items %}
+                                        {% if key != 'error' and key != 'original_data' %}
+                                            <tr>
+                                                <td style="text-transform: capitalize;"><strong>{{ key }}</strong></td>
+                                                <td>{{ value }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p>No patient data found or could be displayed for this block.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <strong class="card-title">Raw Encrypted Data String</strong>
+                    </div>
+                    <div class="card-body">
+                        <pre class="text-monospace" style="word-break: break-all; white-space: pre-wrap;">{{ block.encrypted_data_str }}</pre>
+                    </div>
+                </div>
+
+                <a href="{% url 'index' %}" class="btn btn-primary">Back to Main Page</a>
+            {% else %}
+                <p>No block data available to display.</p>
+                <a href="{% url 'index' %}" class="btn btn-primary">Back to Main Page</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{# Add JS if needed, from your base or app.js, for bootstrap components like alerts/modals if used here #}
+{# For simplicity, this example omits JS unless specifically required for this page's elements #}
+</body>
+</html> 

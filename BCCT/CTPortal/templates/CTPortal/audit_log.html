@@ -1,0 +1,87 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ page_title }} - BlockTrials</title>
+    <link rel="stylesheet" href="{% static 'CTPortal/css/simplebar.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'CTPortal/css/feather.css' %}">
+    <link rel="stylesheet" href="{% static 'CTPortal/css/app-light.css' %}" id="lightTheme">
+    <style>
+      td, th {
+        word-wrap: break-word;
+        max-width: 300px; /* Adjust as needed */
+      }
+      th {
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body class="vertical light ">
+    <div class="wrapper">
+      <main role="main" class="main-content">
+        {% if messages %}
+          <div class="container-fluid">
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <h1 class="page-title mb-4">{{ page_title }}</h1>
+              <hr/>
+              
+              <div class="card shadow">
+                <div class="card-body">
+                  {% if audit_log_entries %}
+                    <table class="table table-hover">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th>Timestamp</th>
+                          <th>Event Type</th>
+                          <th>Description</th>
+                          <th>Related Info</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for entry in audit_log_entries %}
+                          <tr>
+                            <td>{{ entry.Timestamp }}</td>
+                            <td>{{ entry.EventType }}</td>
+                            <td>{{ entry.Description }}</td>
+                            <td>{{ entry.RelatedInfo }}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  {% else %}
+                    <p class="text-center">No audit log entries found.</p>
+                  {% endif %}
+                </div>
+              </div>
+
+              <p class="text-center mt-4">
+                <a href="{% url 'index' %}" class="btn btn-outline-primary">Return to Main Dashboard</a>
+              </p>
+            </div> <!-- .col-12 -->
+          </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+      </main> <!-- main -->
+    </div> <!-- .wrapper -->
+    <script src="{% static 'CTPortal/js/jquery.min.js' %}"></script>
+    <script src="{% static 'CTPortal/js/popper.min.js' %}"></script>
+    <script src="{% static 'CTPortal/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'CTPortal/js/simplebar.min.js' %}"></script>
+    <script src="{% static 'CTPortal/js/config.js' %}"></script>
+    <script src="{% static 'CTPortal/js/apps.js' %}"></script>
+  </body>
+</html> 

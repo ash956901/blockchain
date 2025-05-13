@@ -1,0 +1,74 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ page_title }} - BlockTrials</title>
+    <!-- Simple bar CSS -->
+    <link rel="stylesheet" href="{% static 'CTPortal/css/simplebar.css' %}">
+    <!-- Fonts CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <!-- Icons CSS -->
+    <link rel="stylesheet" href="{% static 'CTPortal/css/feather.css' %}">
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{% static 'CTPortal/css/app-light.css' %}" id="lightTheme">
+  </head>
+  <body class="vertical light ">
+    <div class="wrapper">
+      <main role="main" class="main-content">
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <h1 class="page-title mb-4">{{ page_title }}</h1>
+              <hr/>
+              
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Participants Enrolled</h5>
+                            <span class="h3 mb-0">{{ ParticipantsCount }}</span>
+                            <p class="small text-muted mt-2">This number reflects the current enrollment status in the trial.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-body">
+                          <h5 class="card-title">Study Data Integrity Status</h5>
+                            {% if CHAIN_STATUS == 'Valid' %}
+                              <span class="h3 mb-0 text-success">Verified</span>
+                              <p class="small text-muted mt-2">The integrity of the trial data records has been successfully verified.</p>
+                            {% elif CHAIN_STATUS == "InValid" %}
+                              <span class="h3 mb-0 text-danger">Potentially Compromised</span>
+                              <p class="small text-muted mt-2">The integrity of the trial data records could not be verified. Please contact administrators.</p>
+                            {% else %}
+                              <span class="h3 mb-0 text-warning">{{ CHAIN_STATUS }}</span>
+                              <p class="small text-muted mt-2">The status of the trial data records is currently unknown or pending verification.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+              </div>
+              <hr/>
+              <p class="text-center text-muted">
+                This public portal provides transparent updates on the clinical trial. <br/>
+                All underlying data is secured and managed using blockchain technology to ensure integrity and traceability.
+              </p>
+              <p class="text-center mt-3">
+                <a href="{% url 'index' %}" class="btn btn-outline-primary">Return to Main Dashboard</a>
+              </p>
+            </div> <!-- .col-12 -->
+          </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+      </main> <!-- main -->
+    </div> <!-- .wrapper -->
+    <script src="{% static 'CTPortal/js/jquery.min.js' %}"></script>
+    <script src="{% static 'CTPortal/js/popper.min.js' %}"></script>
+    <script src="{% static 'CTPortal/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'CTPortal/js/simplebar.min.js' %}"></script>
+    <script src="{% static 'CTPortal/js/config.js' %}"></script>
+    <script src="{% static 'CTPortal/js/apps.js' %}"></script>
+  </body>
+</html> 
