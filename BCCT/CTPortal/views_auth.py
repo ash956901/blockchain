@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count
+from django.utils import timezone
 import json
 from django.contrib.auth import login as auth_login, logout as auth_logout
 
@@ -463,6 +464,7 @@ def consent_revoke(request, consent_id):
     consent.save()
     
     # Record consent revocation in blockchain
+    current_time = timezone.now()
     revoke_data = {
         'EventType': 'CONSENT_REVOKED',
         'ConsentID': consent.id,
@@ -470,7 +472,7 @@ def consent_revoke(request, consent_id):
         'ProtocolTitle': consent.protocol.title,
         'ParticipantID': request.user.id,
         'ParticipantUsername': request.user.username,
-        'RevokedAt': consent.updated_at.isoformat(),
+        'RevokedAt': current_time.isoformat(),
         'ConsentHash': consent.consent_hash
     }
     record_blockchain_event('CONSENT_REVOKED', revoke_data)
